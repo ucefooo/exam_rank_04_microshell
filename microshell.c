@@ -62,7 +62,7 @@ void ft_free(tokens *token)
     }
 }
 
-void exec_cmd(tokens *token,int *start,int i)
+void exec_cmd(tokens *token,int *start,int i,char **env)
 {
     int pid;
     if (!strcmp(token->cmds[0],"cd"))
@@ -90,7 +90,7 @@ void exec_cmd(tokens *token,int *start,int i)
             if (dup2(token->std_in,0)==-1)
                 print_err("fatal",0,1);
         }
-        execve(token->cmds[0],token->cmds,0);
+        execve(token->cmds[0],token->cmds,env);
         print_err("cant exe",token->cmds[0],1);
     }
     if (token->std_out!=1)
@@ -107,7 +107,7 @@ void exec_cmd(tokens *token,int *start,int i)
     }
 }
 
-int main(int c, char **v)
+int main(int c, char **v, char **env)
 {
     int i=1,start=i;
     tokens *token,*before;
@@ -123,7 +123,7 @@ int main(int c, char **v)
         i = add_cmd(v,token,i);
         if (v[i-1] && !strcmp(v[i-1],"|"))
             ft_pip(token);
-        exec_cmd(token,&start,i);
+        exec_cmd(token,&start,i,env);
         before=token;
         if (token->std_out!=1)
             token=token->next;
